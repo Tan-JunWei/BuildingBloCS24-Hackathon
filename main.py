@@ -23,7 +23,6 @@ def plot_pedestrian_facilities(csv_path):
     for column in df_pivot.columns:
         plt.plot(df_pivot.index, df_pivot[column], label=column)
 
-    # Add title and labels
     plt.title('Number of Pedestrian Facilities Over Years')
     plt.xlabel('Year')
     plt.ylabel('Number of Facilities')

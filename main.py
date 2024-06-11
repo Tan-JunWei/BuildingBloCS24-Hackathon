@@ -34,6 +34,8 @@ def plot_pedestrian_facilities(csv_path):
 st.subheader('Pedestrian Facilities Over Years')
 plt = plot_pedestrian_facilities(csv_path)
 st.pyplot(plt)
-st.write("As seen above, the Singapore government has continually added more pedestrian facilities over the years,\
-             to enable pedestrians to travel safely and conveniently")
-
+st.write("As seen above, the Singapore government has continually added more pedestrian facilities over the years, to enable pedestrians \
+         to travel safely and conveniently. By investing in pedestrian infrastructure and promoting walking, the Singapore government is not\
+         only reducing carbon emissions and traffic congestion but also fostering a more sustainable urban environemnt.")
+st.write("")
+st.write("However, more must be done.")

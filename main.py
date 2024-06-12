@@ -119,7 +119,9 @@ gmaps = googlemaps.Client(key=api_key)
 
 start = st.text_input("Where are you starting your journey?")
 goal = st.text_input("Where would you like to go?")
+age = st.text_input("What is your age?")
 time_leaving_input = st.text_input("When will you be leaving? (HH\:MM) Leave blank if you are leaving now")
+
 
 # Function to convert duration (eg. 3 hours 31 mins) to number of minutes
 def parse_duration(duration):
@@ -208,7 +210,8 @@ if st.button("Get Directions"):
         if parse_duration(legs_duration) > 10:
             st.write("**Walking duration exceeded 10 minutes.**")
             st.write("**You may like to consider public transport options.**")
-
+        elif int(age) > 65:
+            st.write("Public transport might be more convenient.")
         elif parse_duration(legs_duration):
             st.write("**Walking duration is within 10 minutes, take a walk!**")
             st.write("The average diesel vehicle ie. car emits around 10g of carbon emissions per minute.\

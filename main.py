@@ -5,12 +5,13 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import googlemaps
 from datetime import datetime
+from carbon_emissions import carbon_emissions_car
+from parse_duration import parse_duration
 
-st.set_page_config(page_title="Overview",page_icon="🔥")
+st.set_page_config(page_title="Ecobile", page_icon="🔥")
 st.title("Ecobile")
 st.header("Step into a Greener Future with Ecobile: Walk the Change!")
 st.title("")
-st.header("Overview 📑")
 
 # Static CSV file path
 csv_path = 'PedestrianFacilities.csv'
@@ -34,227 +35,152 @@ def plot_pedestrian_facilities(csv_path):
 
     return plt
 
-with st.container():
-    st.subheader('Pedestrian Facilities Over Time')
-    plt = plot_pedestrian_facilities(csv_path)
-    st.pyplot(plt)
-    st.write("As seen above, the Singapore government has continually added more pedestrian facilities over the years, to enable pedestrians \
-            to travel safely and conveniently. By investing in pedestrian infrastructure and promoting walking, the Singapore government is not\
-            only reducing carbon emissions and traffic congestion but also fostering a more sustainable urban environemnt.")
-    st.write("")
-    st.write("However, more must be done.")
+# Sidebar for navigation
+st.sidebar.title("Navigation")
+page = st.sidebar.radio("Go to", ["Overview", "Application"])
+
+if page == "Overview":
+    st.header("Overview 📑")
+    
+    with st.container():
+        st.subheader('Pedestrian Facilities Over Time')
+        plt = plot_pedestrian_facilities(csv_path)
+        st.pyplot(plt)
+        st.write("As seen above, the Singapore government has continually added more pedestrian facilities over the years, to enable pedestrians \
+                to travel safely and conveniently. By investing in pedestrian infrastructure and promoting walking, the Singapore government is not\
+                only reducing carbon emissions and traffic congestion but also fostering a more sustainable urban environment.")
+        st.write("")
+        st.write("However, more must be done.")
+
+    st.title("")
+    st.header("Carbon Emissions Overview")
+    col1, col2 = st.columns([2.5, 1])
+    with col1:
+        st.write("")
+        st.write("")
+        st.image("Singapore_Emissions_Profile_2021.png")
+    with col2:
+        st.write("In 2021, Transport continued to account for a significant portion of carbon emissions, compromising 14.2% of the total.")
+        st.write("")
+        st.write("")
+        st.write("Singapore’s Emissions Profile. (n.d.). https://www.nccs.gov.sg/singapores-climate-action/singapores-climate-targets/singapore-emissions-profile/")
     st.title("")
 
-col1,col2 = st.columns([2.5,1])
-with col1:
-    st.write("")
-    st.write("")
-    st.image("Singapore_Emissions_Profile_2021.png")
-with col2:
-    st.write("In 2021, Transport continued to account for a significant portion of carbon emissions, compromising 14.2% of the total.")
-    st.write("")
-    st.write("")
-    st.write("Singapore’s Emissions Profile. (n.d.). https://www.nccs.gov.sg/singapores-climate-action/singapores-climate-targets/singapore-emissions-profile/")
-st.title("")
-st.subheader("Rise of Global Carbon Emissions")
-carbon_emission_csv_path = 'historical_emissions.csv'
+    st.header("Rise of Global Carbon Emissions")
+    st.write("The trajectory of carbon emissions reveals an alarming exponential increase over time, casting a looming shadow over the fate of our\
+             planet. It is imperative for us to acknowledge this and adopt strategies to curb this ascent before the devastating implications\
+             of climate change become irreversible.")
+    st.write("The clock is ticking.")
+    st.write("The time is now.")
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+elif page == "Application":
+    st.title("Our Idea💡")
+    st.write("Our application assists users in deciding between walking and using public transport for their journeys, while illustrating the positive environmental impact of opting for these sustainable options instead of driving by calculating and displaying the saved carbon emissions.")
+    st.subheader("")
 
-def load_data():
+    # Get API key
+    api_key = st.text_input("Enter your Google Maps API key:")
+    if not api_key:
+        st.warning("Please enter your Google Maps API key above.")
+        st.stop()
+    gmaps = googlemaps.Client(key=api_key)
+
+    # Get user inputs
+    start = st.text_input("Where are you starting your journey?")
+    goal = st.text_input("Where would you like to go?")
+    age = st.text_input("What is your age?")
+    departure_date = st.date_input("Departure Date", datetime.now().date())
+    departure_time_input = st.text_input("Departure Time (HH\:MM)", datetime.now().strftime('%H:%M'))
+
+    # Validate age input
     try:
-        data = pd.read_csv(carbon_emission_csv_path)
-        return data
-    except Exception as e:
-        st.error(f"Failed to load data: {e}")
+        age = int(age)
+    except ValueError:
+        st.error("Please enter a valid age.")
+        st.stop()
 
-data = load_data()
+    if st.button("Get Directions"):
+        # Parse leaving datetime
+        try:
+            departure_time = datetime.strptime(departure_time_input, '%H:%M')
+        except ValueError:
+            st.error("Please enter a valid time in HH:MM format.")
+            st.stop()
+        
+        departure_datetime = datetime.combine(departure_date, departure_time.time())
+        time_leaving = departure_datetime.timestamp()
 
-if data is not None:
-    countries = data['Country'].unique() #only unique countries
+        # Get walking directions
+        try:
+            directions_result = gmaps.directions(start, goal, mode="walking", departure_time=time_leaving)
+        except Exception as e:
+            st.error(f"Error fetching walking directions: {e}")
+            st.stop()
 
-    years = [int(col) for col in data.columns if col.isdigit()]
-
-    # Plot for each country
-    plt.figure(figsize=(15, 8))
-    for country in countries:
-        country_data = data[data['Country'] == country]
-        emissions = country_data.iloc[:, 5:].values.flatten()
-        plt.plot(years, emissions, label=country)
-
-    plt.title('CO2 Emissions by Country Over the Years')
-    plt.xlabel('Year')
-    plt.ylabel('CO2 Emissions (MtCO₂e)')
-    plt.xticks(years, rotation=45)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1),ncol=6)
-    plt.grid(True)
-    plt.tight_layout()
-
-    st.pyplot(plt)
-
-st.write("The trajectory of carbon emissions reveals an alarming exponential increase over time, casting a looming shadow over the fate of our\
-         planet. It is imperative for us to acknowledge this and adopt strategies to curb this ascent before the devastating implications\
-         of climate change become irreversible.")
-st.write("The clock is ticking.")
-st.write("The time is now.")
-
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-import streamlit as st
-import googlemaps
-from datetime import datetime
-
-# Streamlit interface
-st.title("")
-st.title("Our Idea💡")
-st.write("Our application assists users in deciding between walking and using public transport for their journeys, while\
-         illustrating the positive environmental impact of opting for these sustainable options instead of driving by calculating and displaying\
-         the saved carbon emissions.")
-st.subheader("")
-
-api_key = st.text_input("Enter your Google Maps API key:")
-
-if not api_key:
-    st.warning("Please enter your Google Maps API key above.")
-    st.stop()
-
-gmaps = googlemaps.Client(key=api_key)
-
-start = st.text_input("Where are you starting your journey?")
-goal = st.text_input("Where would you like to go?")
-age = st.text_input("What is your age?")
-time_leaving_input = st.text_input("When will you be leaving? (HH\:MM) Leave blank if you are leaving now")
-
-
-# Function to convert duration (eg. 3 hours 31 mins) to number of minutes
-def parse_duration(duration):
-    total_minutes = 0 #initialise 0
-    parts = duration.split()
-    
-    i = 0
-    while i < len(parts):
-        value = int(parts[i])
-        unit = parts[i+1]
-
-        if "hour" in unit:
-            total_minutes += value * 60 #convert hours to minutes
-        elif "min" in unit:
-            total_minutes += value
-        # else is NOT used here since google maps shows hours and mins, unless user enters a ridiculous input
-        i += 2
-
-    return total_minutes
-
-# Function to calculate carbon emission saved if walk instead of car
-def carbon_emissions_car(duration):
-    # The average diesel vehicle emits around 10g of carbon emissions per minute
-    # Source: https://8billiontrees.com/
-    minutes = parse_duration(duration)
-    average_car_carbon_emission = 10
-    car_carbon_emission_reduced = average_car_carbon_emission * minutes
-
-    return car_carbon_emission_reduced
-
-def electrical_appliance_comparison(duration):
-    # Calculation formula source: https://www.digitaltechnologieshub.edu.au/media/huppewx4/home-energy-use_calculating-ghg-emissions_electricial-appliances.pdf
-
-    # Step 1. Calculate the kilowatt hours (kWh) of your electrical appliance
-    # In this example, we will use an average phone charger
-    # source: https://www.jackery.com/blogs/knowledge/how-many-watts-is-a-phone-charger#:~:text=A%20regular%20phone%20charger%20uses,5.4%20kiloWatt%20hours%20per%20year.
-    '''
-    hours: 3 per day
-    days: 7 per week
-    wattage: 5W based on source
-    '''
-    kWh = (3 * 7 * 5)/1000
-
-    # Step 2. Next multiply the kilowatt hours (kWh) by the Emissions Factor (EF) for your state
-    # source: https://www.ema.gov.sg/resources/singapore-energy-statistics/chapter2
-    # EF for Singapore in 2022 is 0.4168 kg CO2/kWh
-    EF = 0.4168
-    GHG = kWh * EF #GHG refers to greenhouse gas
-    
-    # Since GHG is in kg CO2, we will convert into g CO2
-    grams_GHG = GHG *1000
-    
-    car_comparison = carbon_emissions_car(duration)
-    percentage = (grams_GHG/car_comparison) * 100
-
-    return percentage
-
-if st.button("Get Directions"):
-    if time_leaving_input:
-        current_date = datetime.now()
-        hour, minute = map(int, time_leaving_input.split(":"))
-        time_leaving = datetime(current_date.year, current_date.month, current_date.day, hour, minute).timestamp()
-    else:
-        time_leaving = datetime.now().timestamp()
-
-    directions_result = gmaps.directions(start, goal, mode="walking", departure_time=time_leaving)
-
-    if directions_result:
-        route = directions_result[0]  # Get the first route, assuming it's the primary one
-        legs = route['legs']
-
-        # Declare variables
-        legs_distance = legs[0]['distance']['text']
-        legs_duration = legs[0]['duration']['text']
-        departure_time = datetime.fromtimestamp(time_leaving).strftime('%I:%M %p')
-
-        st.markdown("**Directions from {} to {}:**".format(start, goal), unsafe_allow_html=True)  # Underline effect
-        st.write("**Distance:** {}".format(legs_distance))
-        st.write("**Duration:** {}".format(legs_duration))
-        st.write("**Departure Time:** {}".format(departure_time))
-
-        if 'arrival_time' in legs[0]:
-            st.write("**Arrival Time:** {}".format(datetime.fromtimestamp(legs[0]['arrival_time']['value']).strftime('%H:%M %P')))
-
-        # Finds duration on public transport
-        directions_result = gmaps.directions(start, goal, mode="transit", departure_time=time_leaving)
-        transit_directions = ""
         if directions_result:
-            route = directions_result[0]  # Get the first route, assuming it's the primary one
-            legs = route['legs']  
-            bus_travel_time = 0  # Initialize total bus travel time
-            
-            for step in legs[0]['steps']:
-                if step['travel_mode'] == 'WALKING':
-                    transit_directions += ("**{} to {} ({})**".format(step['html_instructions'], step['end_location'], step['duration']['text']))
-                    transit_directions += ":"
-                elif step['travel_mode'] == 'TRANSIT':
-                    # Accumulate bus travel time
-                    bus_travel_time += step['duration']['value']
+            route = directions_result[0]
+            legs = route['legs'][0]
 
-            # Convert total bus travel time from seconds to hours and minutes
-            bus_hours = bus_travel_time // 3600
-            bus_minutes = (bus_travel_time % 3600) // 60
-            transit_duration_only = ("**Total Travel Time on Buses:** {} hours and {} minutes".format(bus_hours, bus_minutes))
-            total_duration = ("**Total Duration:** {}".format(legs[0]['duration']['text']))
+            legs_distance = legs['distance']['text']
+            legs_duration = legs['duration']['text']
+            departure_time = departure_datetime.strftime('%I:%M %p')
 
-        # Recommendation of transport options
-        if parse_duration(legs_duration) > 10 or int(age) > 65:
-            if int(age) > 65:
-                st.write("Public transport might be more convenient.")
+            st.write(f"**Distance:** {legs_distance}")
+            st.write(f"**Walking Duration:** {legs_duration}")
+            st.write(f"**Departure Time:** {departure_time}")
+
+            if 'arrival_time' in legs:
+                st.write(f"**Arrival Time:** {datetime.fromtimestamp(legs['arrival_time']['value']).strftime('%I:%M %p')}")
+
+            # Get public transport directions
+            try:
+                directions_result = gmaps.directions(start, goal, mode="transit", departure_time=time_leaving)
+            except Exception as e:
+                st.error(f"Error fetching public transport directions: {e}")
+                st.stop()
+
+            if directions_result:
+                route = directions_result[0]
+                legs = route['legs'][0]
+
+                transit_duration = legs['duration']['text']
+                transit_travel_time_s = sum(step['duration']['value'] for step in legs['steps'] if step['travel_mode'] == 'TRANSIT')
+
+                bus_hours = transit_travel_time_s // 3600
+                bus_minutes = (transit_travel_time_s % 3600) // 60
+                transit_duration_only = f"**Total Travel Time on Buses:** {bus_hours} hours and {bus_minutes} minutes"
+                transit_with_walk_duration = f"**Transit Duration:** {transit_duration}"
+
+                # Recommendation based on age and walking duration
+                walking_duration_minutes = parse_duration(legs_duration)
+                if walking_duration_minutes > 20 or (age > 65 and walking_duration_minutes > 5):
+                    if age > 65:
+                        st.write("Your physical condition may not be suitable for such a long walk.")
+                        st.write("Public transport might be more suitable.")
+                    else:
+                        st.write("**Walking duration exceeded 20 minutes.**")
+                        st.write("**You may like to consider public transport options.**")
+                    
+                    st.write(transit_with_walk_duration)
+                    st.write(f"Here are the directions to {goal} using:")
+
+                    for step in legs['steps']:
+                        if step['travel_mode'] == 'WALKING':
+                            st.write(f"**{step['html_instructions']} ({step['duration']['text']}):**")
+                        elif step['travel_mode'] == 'TRANSIT':
+                            transit_details = step['transit_details']
+                            line_name = transit_details['line'].get('short_name', transit_details['line']['name'])
+                            st.write(f"**Take {transit_details['line']['vehicle']['type']} line {line_name} from {transit_details['departure_stop']['name']} to {transit_details['arrival_stop']['name']} ({step['duration']['text']}):**")
+                elif age < 1:
+                    st.write("You aren't old enough to walk or take public transport by yourself yet!")
+                else:
+                    st.write("**Walking duration is within 20 minutes, take a walk!**")
+                    if transit_travel_time_s > 0:
+                        st.write(f"If you would have taken public transport instead, you would have produced {carbon_emissions_car(f'{bus_hours} hour {bus_minutes} min')}g of carbon emissions.")
+                        st.write(f"{bus_hours} hours {bus_minutes} minutes")
+                    else:
+                        st.write("Walking is the only possible way")
             else:
-                st.write("**Walking duration exceeded 10 minutes.**")
-                st.write("**You may like to consider public transport options.**")
-            st.write(total_duration)
-            for step in legs[0]['steps']:
-                if step['travel_mode'] == 'WALKING':
-                    st.write("**{} to {} ({}):**".format(step['html_instructions'], step['end_location'], step['duration']['text']))
-                elif step['travel_mode'] == 'TRANSIT':
-                    transit_details = step['transit_details']
-                    line_name = transit_details['line']['name'] if 'name' in transit_details['line'] else 'Unknown Line'
-                    st.write("**Take {} line {} from {} to {} ({}):**".format(transit_details['line']['vehicle']['type'],
-                                                                            transit_details['line'].get('short_name', line_name),
-                                                                            transit_details['departure_stop']['name'],
-                                                                            transit_details['arrival_stop']['name'],
-                                                                            step['duration']['text']))
-        elif int(age) < 1:
-            st.write("You aren't old enough to walk or take public transport by yourself yet!")
-        elif parse_duration(legs_duration):
-            st.write("**Walking duration is within 10 minutes, take a walk!**")
-            # st.write("The average diesel vehicle ie. car emits around 10g of carbon emissions per minute.\
-            #          By taking a walk for {} minutes instead of driving, you are reducing carbon emissions by approximately {}g.".format(parse_duration(legs_duration),carbon_emissions_car(legs_duration)))
-            # st.write("This corresponds to {:.2f}% of the yearly carbon emissions generated by charging a smartphone".format(electrical_appliance_comparison(legs_duration)))
-            st.write("If you would have taken a public transport instead, you would have produced {}g of carbon emmissions".format(carbon_emissions_car(bus_minutes+bus_hours*60)))
-    else:
-        st.write("No directions found.")
+                st.write("No transit directions found. Walking is the only option.")
+        else:
+            st.write("No walking directions found.")

@@ -96,6 +96,25 @@ start = st.text_input("Where are you starting your journey?")
 goal = st.text_input("Where would you like to go?")
 time_leaving_input = st.text_input("When will you be leaving? (HH\:MM) Leave blank if you are leaving now")
 
+# Convert duration (eg. 3 hours 31 mins) to number of minutes
+def parse_duration(duration):
+    total_minutes = 0 #initialise 0
+    parts = duration.split()
+    
+    i = 0
+    while i < len(parts):
+        value = int(parts[i])
+        unit = parts[i+1]
+
+        if "hour" in unit:
+            total_minutes += value * 60 #convert hours to minutes
+        elif "min" in unit:
+            total_minutes += value
+        # else is NOT used here since google maps shows hours and mins, unless user enters a ridiculous input
+        i += 2
+
+    return total_minutes
+
 if st.button("Get Directions"):
     if time_leaving_input:
         current_date = datetime.now()
@@ -109,13 +128,25 @@ if st.button("Get Directions"):
     if directions_result:
         route = directions_result[0]  # Get the first route, assuming it's the primary one
         legs = route['legs']
+
+        # Declare variables
+        legs_distance = legs[0]['distance']['text']
+        legs_duration = legs[0]['duration']['text']
+        departure_time = datetime.fromtimestamp(time_leaving).strftime('%Y-%m-%d %H:%M:%S')
+
         st.markdown("**Directions from {} to {}:**".format(start, goal), unsafe_allow_html=True)  # Underline effect
-        st.write("**Distance:** {}".format(legs[0]['distance']['text']))
-        st.write("**Duration:** {}".format(legs[0]['duration']['text']))
-        st.write("**Departure Time:** {}".format(datetime.fromtimestamp(time_leaving).strftime('%Y-%m-%d %H:%M:%S')))
+        st.write("**Distance:** {}".format(legs_distance))
+        st.write("**Duration:** {}".format(legs_duration))
+        st.write("**Departure Time:** {}".format(departure_time))
+        # Recommendation of transport options
+        if parse_duration(legs_duration)> 10:
+            st.write("**Walking duration exceeded 10 minutes.**")
+            st.write("**You may like to consider public transport options.**")
+
         if 'arrival_time' in legs[0]:
             st.write("**Arrival Time:** {}".format(datetime.fromtimestamp(legs[0]['arrival_time']['value']).strftime('%Y-%m-%d %H:%M:%S')))
     else:
         st.write("No directions found.")
+
 
 

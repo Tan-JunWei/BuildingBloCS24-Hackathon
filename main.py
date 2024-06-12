@@ -8,8 +8,9 @@ from datetime import datetime
 
 st.set_page_config(page_title="Overview",page_icon="🔥")
 st.title("Ecobile")
-st.header("An app for Sustainability")
+st.header("Step into a Greener Future with Ecobile: Walk the Change!")
 st.title("")
+st.header("Overview 📑")
 
 # Static CSV file path
 csv_path = 'PedestrianFacilities.csv'
@@ -25,7 +26,7 @@ def plot_pedestrian_facilities(csv_path):
     for column in df_pivot.columns:
         plt.plot(df_pivot.index, df_pivot[column], label=column)
 
-    plt.title('Number of Pedestrian Facilities Over Years')
+    plt.title('Number of Pedestrian Facilities Over Time')
     plt.xlabel('Year')
     plt.ylabel('Number of Facilities')
     plt.legend(title='Facility Type')
@@ -34,7 +35,7 @@ def plot_pedestrian_facilities(csv_path):
     return plt
 
 with st.container():
-    st.subheader('Pedestrian Facilities Over Years')
+    st.subheader('Pedestrian Facilities Over Time')
     plt = plot_pedestrian_facilities(csv_path)
     st.pyplot(plt)
     st.write("As seen above, the Singapore government has continually added more pedestrian facilities over the years, to enable pedestrians \
@@ -42,7 +43,20 @@ with st.container():
             only reducing carbon emissions and traffic congestion but also fostering a more sustainable urban environemnt.")
     st.write("")
     st.write("However, more must be done.")
+    st.title("")
 
+col1,col2 = st.columns([2.5,1])
+with col1:
+    st.write("")
+    st.write("")
+    st.image("Singapore_Emissions_Profile_2021.png")
+with col2:
+    st.write("In 2021, Transport continued to account for a significant portion of carbon emissions, compromising 14.2% of the total.")
+    st.write("")
+    st.write("")
+    st.write("Singapore’s Emissions Profile. (n.d.). https://www.nccs.gov.sg/singapores-climate-action/singapores-climate-targets/singapore-emissions-profile/")
+st.title("")
+st.subheader("Rise of Global Carbon Emissions")
 carbon_emission_csv_path = 'historical_emissions.csv'
 
 def load_data():
@@ -75,6 +89,12 @@ if data is not None:
     plt.tight_layout()
 
     st.pyplot(plt)
+
+st.write("The trajectory of carbon emissions reveals an alarming exponential increase over time, casting a looming shadow over the fate of our\
+         planet. It is imperative for us to acknowledge this and adopt strategies to curb this ascent before the devastating implications\
+         of climate change become irreversible.")
+st.write("The clock is ticking.")
+st.write("The time is now.")
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 import streamlit as st
@@ -82,7 +102,12 @@ import googlemaps
 from datetime import datetime
 
 # Streamlit interface
-st.title("Walking Directions Finder")
+st.title("")
+st.title("Our Idea💡")
+st.write("Our application assists users in deciding between walking and using public transport for their journeys, while\
+         illustrating the positive environmental impact of opting for these sustainable options instead of driving by calculating and displaying\
+         the saved carbon emissions.")
+st.subheader("")
 
 api_key = st.text_input("Enter your Google Maps API key:")
 

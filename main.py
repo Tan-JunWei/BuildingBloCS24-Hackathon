@@ -96,7 +96,7 @@ start = st.text_input("Where are you starting your journey?")
 goal = st.text_input("Where would you like to go?")
 time_leaving_input = st.text_input("When will you be leaving? (HH\:MM) Leave blank if you are leaving now")
 
-# Convert duration (eg. 3 hours 31 mins) to number of minutes
+# Function to convert duration (eg. 3 hours 31 mins) to number of minutes
 def parse_duration(duration):
     total_minutes = 0 #initialise 0
     parts = duration.split()
@@ -114,6 +114,17 @@ def parse_duration(duration):
         i += 2
 
     return total_minutes
+
+# Function to calculate carbon emission saved if walk instead of car
+def carbon_emissions_car(duration):
+    # The average diesel vehicle emits around 10g of carbon emissions per minute
+    # Source: https://8billiontrees.com/
+    minutes = parse_duration(duration)
+    average_car_carbon_emission = 10
+    car_carbon_emission_reduced = average_car_carbon_emission * minutes
+
+    return car_carbon_emission_reduced
+
 
 if st.button("Get Directions"):
     if time_leaving_input:
@@ -138,15 +149,18 @@ if st.button("Get Directions"):
         st.write("**Distance:** {}".format(legs_distance))
         st.write("**Duration:** {}".format(legs_duration))
         st.write("**Departure Time:** {}".format(departure_time))
-        # Recommendation of transport options
-        if parse_duration(legs_duration)> 10:
-            st.write("**Walking duration exceeded 10 minutes.**")
-            st.write("**You may like to consider public transport options.**")
 
         if 'arrival_time' in legs[0]:
             st.write("**Arrival Time:** {}".format(datetime.fromtimestamp(legs[0]['arrival_time']['value']).strftime('%Y-%m-%d %H:%M:%S')))
+
+        # Recommendation of transport options
+        if parse_duration(legs_duration) > 10:
+            st.write("**Walking duration exceeded 10 minutes.**")
+            st.write("**You may like to consider public transport options.**")
+            
+        elif parse_duration(legs_duration):
+            st.write("**Walking duration is within 10 minutes, take a walk!**")
+            st.write("The average diesel vehicle ie. car emits around 10g of carbon emissions per minute.\
+                     By taking a walk for {} minutes instead of driving, you are reducing carbon emissions by approximately {}g.".format(parse_duration(legs_duration),carbon_emissions_car(legs_duration)))
     else:
         st.write("No directions found.")
-
-
-

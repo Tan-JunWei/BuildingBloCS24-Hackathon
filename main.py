@@ -95,6 +95,7 @@ st.write("The trajectory of carbon emissions reveals an alarming exponential inc
          of climate change become irreversible.")
 st.write("The clock is ticking.")
 st.write("The time is now.")
+
 # ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 import streamlit as st
@@ -196,7 +197,7 @@ if st.button("Get Directions"):
         # Declare variables
         legs_distance = legs[0]['distance']['text']
         legs_duration = legs[0]['duration']['text']
-        departure_time = datetime.fromtimestamp(time_leaving).strftime('%Y-%m-%d %H:%M:%S')
+        departure_time = datetime.fromtimestamp(time_leaving).strftime('%I:%M %p')
 
         st.markdown("**Directions from {} to {}:**".format(start, goal), unsafe_allow_html=True)  # Underline effect
         st.write("**Distance:** {}".format(legs_distance))
@@ -204,18 +205,56 @@ if st.button("Get Directions"):
         st.write("**Departure Time:** {}".format(departure_time))
 
         if 'arrival_time' in legs[0]:
-            st.write("**Arrival Time:** {}".format(datetime.fromtimestamp(legs[0]['arrival_time']['value']).strftime('%Y-%m-%d %H:%M:%S')))
+            st.write("**Arrival Time:** {}".format(datetime.fromtimestamp(legs[0]['arrival_time']['value']).strftime('%H:%M %P')))
+
+        # Finds duration on public transport
+        directions_result = gmaps.directions(start, goal, mode="transit", departure_time=time_leaving)
+        transit_directions = ""
+        if directions_result:
+            route = directions_result[0]  # Get the first route, assuming it's the primary one
+            legs = route['legs']  
+            bus_travel_time = 0  # Initialize total bus travel time
+            
+            for step in legs[0]['steps']:
+                if step['travel_mode'] == 'WALKING':
+                    transit_directions += ("**{} to {} ({})**".format(step['html_instructions'], step['end_location'], step['duration']['text']))
+                    transit_directions += ":"
+                elif step['travel_mode'] == 'TRANSIT':
+                    # Accumulate bus travel time
+                    bus_travel_time += step['duration']['value']
+
+            # Convert total bus travel time from seconds to hours and minutes
+            bus_hours = bus_travel_time // 3600
+            bus_minutes = (bus_travel_time % 3600) // 60
+            transit_duration_only = ("**Total Travel Time on Buses:** {} hours and {} minutes".format(bus_hours, bus_minutes))
+            total_duration = ("**Total Duration:** {}".format(legs[0]['duration']['text']))
 
         # Recommendation of transport options
-        if parse_duration(legs_duration) > 10:
-            st.write("**Walking duration exceeded 10 minutes.**")
-            st.write("**You may like to consider public transport options.**")
-        elif int(age) > 65:
-            st.write("Public transport might be more convenient.")
+        if parse_duration(legs_duration) > 10 or int(age) > 65:
+            if int(age) > 65:
+                st.write("Public transport might be more convenient.")
+            else:
+                st.write("**Walking duration exceeded 10 minutes.**")
+                st.write("**You may like to consider public transport options.**")
+            st.write(total_duration)
+            for step in legs[0]['steps']:
+                if step['travel_mode'] == 'WALKING':
+                    st.write("**{} to {} ({}):**".format(step['html_instructions'], step['end_location'], step['duration']['text']))
+                elif step['travel_mode'] == 'TRANSIT':
+                    transit_details = step['transit_details']
+                    line_name = transit_details['line']['name'] if 'name' in transit_details['line'] else 'Unknown Line'
+                    st.write("**Take {} line {} from {} to {} ({}):**".format(transit_details['line']['vehicle']['type'],
+                                                                            transit_details['line'].get('short_name', line_name),
+                                                                            transit_details['departure_stop']['name'],
+                                                                            transit_details['arrival_stop']['name'],
+                                                                            step['duration']['text']))
+        elif int(age) < 1:
+            st.write("You aren't old enough to walk or take public transport by yourself yet!")
         elif parse_duration(legs_duration):
             st.write("**Walking duration is within 10 minutes, take a walk!**")
-            st.write("The average diesel vehicle ie. car emits around 10g of carbon emissions per minute.\
-                     By taking a walk for {} minutes instead of driving, you are reducing carbon emissions by approximately {}g.".format(parse_duration(legs_duration),carbon_emissions_car(legs_duration)))
-            st.write("This corresponds to {:.2f}% of the yearly carbon emissions generated by charging a smartphone".format(electrical_appliance_comparison(legs_duration)))
+            # st.write("The average diesel vehicle ie. car emits around 10g of carbon emissions per minute.\
+            #          By taking a walk for {} minutes instead of driving, you are reducing carbon emissions by approximately {}g.".format(parse_duration(legs_duration),carbon_emissions_car(legs_duration)))
+            # st.write("This corresponds to {:.2f}% of the yearly carbon emissions generated by charging a smartphone".format(electrical_appliance_comparison(legs_duration)))
+            st.write("If you would have taken a public transport instead, you would have produced {}g of carbon emmissions".format(carbon_emissions_car(bus_minutes+bus_hours*60)))
     else:
         st.write("No directions found.")

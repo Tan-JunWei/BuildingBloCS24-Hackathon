@@ -193,23 +193,27 @@ elif page == "Application":
                     else:
                         st.write("**Walking duration exceeded 20 minutes.**")
                         st.write("**You may like to consider public transport options.**")
-                    
-                    st.write(transit_with_walk_duration)
-                    st.write(f"Here are the directions to {goal} using:")
 
-                    for step in legs['steps']:
-                        if step['travel_mode'] == 'WALKING':
-                            st.write(f"**{step['html_instructions']} ({step['duration']['text']}):**")
-                        elif step['travel_mode'] == 'TRANSIT':
-                            transit_details = step['transit_details']
-                            line_name = transit_details['line'].get('short_name', transit_details['line']['name'])
-                            st.write(f"**Take {transit_details['line']['vehicle']['type']} line {line_name} from {transit_details['departure_stop']['name']} to {transit_details['arrival_stop']['name']} ({step['duration']['text']}):**")
+                    if not transit_travel_time_s > 0:
+                        st.write("Sorry, walking is the only possible option")
+                    else:
+                        st.write(transit_with_walk_duration)
+                        st.write(f"Here are the directions to {goal} using:")
+                        for step in legs['steps']:
+                            if step['travel_mode'] == 'WALKING':
+                                st.write(f"**{step['html_instructions']} ({step['duration']['text']}):**")
+                            elif step['travel_mode'] == 'TRANSIT':
+                                transit_details = step['transit_details']
+                                line_name = transit_details['line'].get('short_name', transit_details['line']['name'])
+                                st.write(f"**Take {transit_details['line']['vehicle']['type']} line {line_name} from {transit_details['departure_stop']['name']} to {transit_details['arrival_stop']['name']} ({step['duration']['text']}):**")
                 elif age < 1:
                     st.write("You aren't old enough to walk or take public transport by yourself yet!")
                 else:
                     st.write("**Walking duration is within 20 minutes, take a walk!**")
                     if transit_travel_time_s > 0:
-                        st.write(f"If you would have taken public transport instead, you would have produced {carbon_emissions_car(f'{bus_hours} hour {bus_minutes} min'):.2f}g of carbon emissions.")
+                        saved_emissions = carbon_emissions_car(f'{bus_hours} hour {bus_minutes} min')
+                        st.write(f"If you would have taken public transport instead, you would have produced {saved_emissions:.2f}g of carbon emissions.")
+                        st.write(f"This is equivalent to planting {int(saved_emissions / 20)} trees or driving {saved_emissions / 2} km less in a car.")
                     else:
                         st.write("Walking is the only possible way too")
             else:

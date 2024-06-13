@@ -10,9 +10,9 @@ Ecobile also provides a gemini AI chatbot for users to ask about environmental b
 
 ## Features
 <p>
-  <ul>- Graphs using matplotlib</ul>
+  <ul>- Graphs using Matplotlib</ul>
   <ul>- Accurate travel information using Google Maps API, for calculation</ul>
-  <ul>- Gemini API chatbot</ul>
+  <ul>- Gemini AI chatbot</ul>
 </p>
 
 ## Installation and Usage

@@ -26,25 +26,7 @@ git clone https://github.com/Tan-JunWei/BuildingBloCS24-Hackathon.git
 2. Install dependencies:
    
 ```bash
-pip install google-generativeai
-```
-```bash
-pip install pandas
-```
-```bash
-pip install numpy
-```
-```bash
-pip install streamlit
-```
-```bash
-pip install matplotlib
-```
-```bash
-pip install googlemaps
-```
-```bash
-pip install streamlit-lottie
+pip install google-generativeai pandas numpy streamlit matplotlib googlemaps streamlit-lottie
 ```
 
 3. Run the script

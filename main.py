@@ -198,6 +198,7 @@ elif page == "Application":
                     if not transit_travel_time_s > 0:
                         st.write("Sorry, walking is the only possible option")
                     else:
+                        st.write("---------------------------------------------------------------------------")
                         st.write(transit_with_walk_duration)
                         st.write(f"Here are the directions to {goal} using:")
                         for step in legs['steps']:
@@ -213,9 +214,8 @@ elif page == "Application":
                     st.write("**Walking duration is within 15 minutes, take a walk!**")
                     if transit_travel_time_s > 0:
                         saved_emissions = carbon_emissions_car(f'{bus_hours} hour {bus_minutes} min')
-                        st.write(f"If you would have taken public transport instead, you would have produced {saved_emissions:.2f}g of carbon emissions.")
+                        st.write(f"If you had taken public transport instead, you would have produced {saved_emissions:.2f}g of carbon emissions.")
                         st.write(f"This amount of carbon emissions saved is equivalent to planting {saved_emissions / 1000:.2f} trees.")
-                        st.write(f"This amount of carbon emissions saved is equivalent to saving {int(saved_emissions / 20)} plastic water bottles from being produced.")
                         st.write(f"This amount of carbon emissions saved is equivalent to running an air conditioner for approximately {saved_emissions/500*60:.2f} minutes.")
 
                     else:
@@ -232,8 +232,14 @@ elif page == "Gemini":
     api_key = st.text_input("Enter your Gemini API key:")
 
     if api_key:
-        st.write("You've entered your API key. You can now ask Gemini questions about the environment.")
-
+        st.write("You've entered your API key. You can now ask Gemini questions.")
+        st.subheader("")
+        st.subheader("Prompt examples")
+        st.write("How can I lower my carbon footprint in my daily life?")
+        st.write("Why is lowering carbon footprint important?")
+        st.write("How can changes in transportation habits lower your carbon footprint?")
+        st.subheader("")
+        
         # User input for query
         query = st.text_input("Enter your query:")
 

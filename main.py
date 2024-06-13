@@ -7,11 +7,11 @@ import googlemaps
 from datetime import datetime
 from carbon_emissions import carbon_emissions_car
 from parse_duration import parse_duration
+from streamlit_lottie import st_lottie
 
 st.set_page_config(page_title="Ecobile", page_icon="🔥")
 st.title("Ecobile")
 st.header("Step into a Greener Future with Ecobile: Walk the Change!")
-st.title("")
 
 # Static CSV file path
 csv_path = 'PedestrianFacilities.csv'
@@ -106,6 +106,7 @@ if page == "Overview":
     st.write("The time is now.")
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 elif page == "Application":
+    st_lottie("https://lottie.host/6b986966-78ed-4fce-8758-90c19b07a73a/2UdJMhLYzJ.json")
     st.title("Our Idea💡")
     st.write("Our application assists users in deciding between walking and using public transport for their journeys, while illustrating the positive environmental impact of opting for these sustainable options instead of driving by calculating and displaying the saved carbon emissions.")
     st.subheader("")

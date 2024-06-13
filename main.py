@@ -209,11 +209,10 @@ elif page == "Application":
                 else:
                     st.write("**Walking duration is within 20 minutes, take a walk!**")
                     if transit_travel_time_s > 0:
-                        st.write(f"If you would have taken public transport instead, you would have produced {carbon_emissions_car(f'{bus_hours} hour {bus_minutes} min')}g of carbon emissions.")
-                        st.write(f"{bus_hours} hours {bus_minutes} minutes")
+                        st.write(f"If you would have taken public transport instead, you would have produced {carbon_emissions_car(f'{bus_hours} hour {bus_minutes} min'):.2f}g of carbon emissions.")
                     else:
-                        st.write("Walking is the only possible way")
+                        st.write("Walking is the only possible way too")
             else:
-                st.write("No transit directions found. Walking is the only option.")
+                st.write("No transit directions found.")
         else:
             st.write("No walking directions found.")

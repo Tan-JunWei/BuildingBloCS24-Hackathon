@@ -15,6 +15,9 @@ Ecobile also provides a gemini AI chatbot for users to ask about environmental b
   <ul>- Gemini AI chatbot</ul>
 </p>
 
+## Security
+<p>Users must use their personal API keys for Google Maps and Google Gemini</p>
+
 ## Installation and Usage
 
 1. Clone the repository:

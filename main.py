@@ -186,12 +186,12 @@ elif page == "Application":
 
                 # Recommendation based on age and walking duration
                 walking_duration_minutes = parse_duration(legs_duration)
-                if walking_duration_minutes > 20 or (age > 65 and walking_duration_minutes > 5):
+                if walking_duration_minutes > 15 or (age > 65 and walking_duration_minutes > 5):
                     if age > 65:
                         st.write("Your physical condition may not be suitable for such a long walk.")
                         st.write("Public transport might be more suitable.")
                     else:
-                        st.write("**Walking duration exceeded 20 minutes.**")
+                        st.write("**Walking duration exceeded 15 minutes.**")
                         st.write("**You may like to consider public transport options.**")
 
                     if not transit_travel_time_s > 0:
@@ -209,11 +209,14 @@ elif page == "Application":
                 elif age < 1:
                     st.write("You aren't old enough to walk or take public transport by yourself yet!")
                 else:
-                    st.write("**Walking duration is within 20 minutes, take a walk!**")
+                    st.write("**Walking duration is within 15 minutes, take a walk!**")
                     if transit_travel_time_s > 0:
                         saved_emissions = carbon_emissions_car(f'{bus_hours} hour {bus_minutes} min')
                         st.write(f"If you would have taken public transport instead, you would have produced {saved_emissions:.2f}g of carbon emissions.")
-                        st.write(f"This is equivalent to planting {int(saved_emissions / 20)} trees or driving {saved_emissions / 2} km less in a car.")
+                        st.write(f"This amount of carbon emissions saved is equivalent to planting {saved_emissions / 1000:.2f} trees.")
+                        st.write(f"This amount of carbon emissions saved is equivalent to saving {int(saved_emissions / 20)} plastic water bottles from being produced.")
+                        st.write(f"This amount of carbon emissions saved is equivalent to running an air conditioner for approximately {saved_emissions/500*60:.2f} minutes.")
+
                     else:
                         st.write("Walking is the only possible way too")
             else:

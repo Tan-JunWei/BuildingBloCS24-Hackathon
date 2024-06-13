@@ -1,4 +1,5 @@
 # Import dependencies
+import google.generativeai as genai
 import pandas as pd
 import numpy as np
 import streamlit as st
@@ -37,7 +38,7 @@ def plot_pedestrian_facilities(csv_path):
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Overview", "Application"])
+page = st.sidebar.radio("Go to", ["Overview", "Application", "Gemini"])
 
 if page == "Overview":
     st.header("Overview 📑")
@@ -223,3 +224,45 @@ elif page == "Application":
                 st.write("No transit directions found.")
         else:
             st.write("No walking directions found.")
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------
+elif page == "Gemini":
+    st.title("Gemini API")
+    st.write("To interact with Gemini, please enter your API credentials below:")
+
+    api_key = st.text_input("Enter your Gemini API key:")
+
+    if api_key:
+        st.write("You've entered your API key. You can now ask Gemini questions about the environment.")
+
+        # User input for query
+        query = st.text_input("Enter your query:")
+
+        if st.button("Ask"):
+            if query:
+                # Configure Google AI SDK
+                genai.configure(api_key=api_key)
+
+                # Create the model
+                generation_config = {
+                    "temperature": 1,
+                    "top_p": 0.95,
+                    "top_k": 64,
+                    "max_output_tokens": 8192,
+                    "response_mime_type": "text/plain",
+                }
+
+                model = genai.GenerativeModel(
+                    model_name="gemini-1.5-pro",
+                    generation_config=generation_config,
+                    # Add safety_settings if needed
+                )
+
+                # Start a chat session and get response
+                chat_session = model.start_chat(history=[])
+                response = chat_session.send_message(query)
+
+                # Display response
+                st.write("Response from Gemini:")
+                st.write(response.text)
+            else:
+                st.warning("Please enter a query.")

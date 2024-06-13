@@ -227,6 +227,10 @@ elif page == "Application":
 # -------------------------------------------------------------------------------------------------------------------------------------------------------------
 elif page == "Gemini":
     st.title("Gemini API")
+
+    # Display the Lottie animation
+    st_lottie = st.lottie("https://lottie.host/8da495a6-7dd5-4370-9333-7204a9e3c33d/jgIvDHEXVS.json")
+
     st.write("To interact with Gemini, please enter your API credentials below:")
 
     api_key = st.text_input("Enter your Gemini API key:")
@@ -239,7 +243,7 @@ elif page == "Gemini":
         st.write("Why is lowering carbon footprint important?")
         st.write("How can changes in transportation habits lower your carbon footprint?")
         st.subheader("")
-        
+
         # User input for query
         query = st.text_input("Enter your query:")
 

@@ -9,11 +9,11 @@ Our intuitive interface provides clear recommendations based on distance and tim
 </p>
 
 ## Features
-<p>
-  <ul>- Graphs using Matplotlib</ul>
-  <ul>- Accurate travel information using Google Maps API, for calculation</ul>
-  <ul>- Gemini AI chatbot</ul>
-</p>
+<ul>
+  <li> Graphs using Matplotlib</li>
+  <li> Accurate travel information using Google Maps API, for calculation</li>
+  <li> Gemini AI chatbot</li>
+</ul>
 
 ## Security
 <p>Users must use their personal API keys for Google Maps and Google Gemini</p>
